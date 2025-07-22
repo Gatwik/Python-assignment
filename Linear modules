@@ -1,0 +1,318 @@
+GETTING DATA AND LINEAR MODULES
+FROM R TO PYTHON
+CODE 1
+To: python 
+import pandas as pd
+import pickle
+url = "http://faculty.ucr.edu/~jflegal/206/gmp.dat"
+gmp = pd.read_csv(url, delim_whitespace=True)
+gmp['pop'] = round(gmp['gmp'] / gmp['pcgmp'])
+with open("gmp.pkl", "wb") as f:
+    pickle.dump(gmp, f)
+del gmp
+try:
+    gmp
+except NameError:
+    print("gmp does not exist")  # similar to exists("gmp") in R
+with open("gmp.pkl", "rb") as f:
+    not_gmp = pickle.load(f)
+print(not_gmp.columns.tolist())  # ['MSA', 'gmp', 'pcgmp', 'pop']
+CODE 2
+To: python
+import pandas as pd
+cats = pd.DataFrame({
+    'Sex': ['F'] * 47 + ['M'] * 97,
+    'Bwt': [2.0, 2.3, 2.7, 2.724, 3.025, 3.9] * 24 + [2.5] * 2, 
+    'Hwt': [6.3, 8.95, 10.1, 10.63, 12.12, 20.5] * 24 + [9.0] * 2
+})
+print(cats.describe(include='all'))
+CODE 3
+
+To: python
+import pandas as pd
+birthwt = pd.read_csv("birthwt.csv")
+print(birthwt['low'].value_counts())
+print(birthwt['smoke'].value_counts())
+print(birthwt.describe(include='all'))
+CODE 4
+To: python
+import pandas as pd
+birthwt = pd.read_csv("birthwt.csv")
+birthwt.columns = [
+    "birthwt.below.2500", "mother.age", 
+    "mother.weight", "race",
+    "mother.smokes", "previous.prem.labor", 
+    "hypertension", "uterine.irr",
+    "physician.visits", "birthwt.grams"
+]
+print(birthwt.columns.tolist())
+CODE 5
+To: python
+import pandas as pd
+birthwt = pd.read_csv("birthwt.csv")
+race_map = {1: "white", 2: "black", 3: "other"}
+birthwt["race"] = birthwt["race"].map(race_map)
+binary_map = {0: "No", 1: "Yes"}
+birthwt["mother.smokes"] = birthwt["mother.smokes"].map(binary_map)
+birthwt["uterine.irr"] = birthwt["uterine.irr"].map(binary_map)
+birthwt["hypertension"] = birthwt["hypertension"].map(binary_map)
+CODE 6
+To: python
+import pandas as pd
+birthwt = pd.read_csv("birthwt.csv")
+birthwt.columns = [
+    "birthwt.below.2500", "mother.age", 
+    "mother.weight", "race",
+    "mother.smokes", "previous.prem.labor", 
+    "hypertension", "uterine.irr",
+    "physician.visits", "birthwt.grams"
+]
+birthwt["race"] = birthwt["race"].map({1: "white", 2: "black", 3: "other"})
+birthwt["mother.smokes"] = birthwt["mother.smokes"].map({0: "No", 1: "Yes"})
+birthwt["uterine.irr"] = birthwt["uterine.irr"].map({0: "No", 1: "Yes"})
+birthwt["hypertension"] = birthwt["hypertension"].map({0: "No", 1: "Yes"})
+num_summary = birthwt.describe()
+cat_summary = {
+    "race": birthwt["race"].value_counts(),
+    "mother.smokes": birthwt["mother.smokes"].value_counts(),
+    "hypertension": birthwt["hypertension"].value_counts(),
+    "uterine.irr": birthwt["uterine.irr"].value_counts()
+}
+print("Numerical Summary:\n", num_summary)
+print("\nCategorical Summary:")
+for col, summary in cat_summary.items():
+    print(f"\n{col}:\n{summary}")
+CODE 7
+To: python
+import pandas as pd
+import matplotlib.pyplot as plt
+birthwt = pd.read_csv("birthwt.csv")
+race_map = {1: "white", 2: "black", 3: "other"}
+birthwt["race"] = birthwt["race"].map(race_map)
+race_counts = birthwt["race"].value_counts()
+plt.figure(figsize=(6,4))
+race_counts.plot(kind='bar', color=['skyblue', 'coral', 'lightgreen'])
+plt.title("Count of Mother's Race in Springfield MA, 1986")
+plt.xlabel("Race")
+plt.ylabel("Count")
+plt.xticks(rotation=0)
+plt.tight_layout()
+plt.show()
+CODE 8
+To: python
+import pandas as pd
+import matplotlib.pyplot as plt
+birthwt = pd.read_csv("birthwt.csv")
+plt.figure(figsize=(6,4))
+plt.hist(birthwt["mother.age"], bins=10, color='mediumpurple', edgecolor='black')
+plt.title("Mother's Ages in Springfield MA, 1986")
+plt.xlabel("Age")
+plt.ylabel("Mother's Age")
+plt.grid(True, linestyle='--', alpha=0.5)
+
+plt.tight_layout()
+plt.show()
+CODE 9
+To: python
+import pandas as pd
+import matplotlib.pyplot as plt
+birthwt = pd.read_csv("birthwt.csv")
+sorted_ages = birthwt["mother.age"].sort_values().reset_index(drop=True)
+plt.figure(figsize=(6,4))
+plt.plot(sorted_ages, marker='o', linestyle='-', color='teal')
+plt.title("(Sorted) Mother's Ages in Springfield MA, 1986")
+plt.ylabel("Mother's Age")
+plt.xlabel("Index (sorted order)")
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
+CODE 10
+To: python
+import pandas as pd
+import matplotlib.pyplot as plt
+birthwt = pd.read_csv("birthwt.csv")
+plt.figure(figsize=(6,4))
+plt.scatter(birthwt["mother.age"], birthwt["birthwt.grams"], color='darkorange', edgecolors='black', alpha=0.7)
+plt.title("Birth Weight by Mother's Age in Springfield MA, 1986")
+plt.xlabel("Mother's Age")
+plt.ylabel("Birth Weight (g)")
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
+CODE 11
+To: python
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+birthwt = pd.read_csv("birthwt.csv")
+birthwt["mother.smokes"] = birthwt["mother.smokes"].map({0: "No", 1: "Yes"})plt.figure(figsize=(6,4))
+sns.boxplot(x="mother.smokes", y="birthwt.grams", data=birthwt, palette="pastel")
+plt.title("Birth Weight by Mother's Smoking Habit")
+plt.xlabel("Mother Smokes")
+plt.ylabel("Birth Weight (g)")
+plt.grid(True, linestyle='--', alpha=0.3)
+plt.tight_layout()
+plt.show()
+CODE 12
+To: python
+import pandas as pd
+from scipy import stats
+birthwt = pd.read_csv("birthwt.csv")
+birthwt["mother.smokes"] = birthwt["mother.smokes"].map({0: "No", 1: "Yes"})
+smokers = birthwt.loc[birthwt["mother.smokes"] == "Yes", "birthwt.grams"]
+non_smokers = birthwt.loc[birthwt["mother.smokes"] == "No", "birthwt.grams"]
+t_stat, p_val = stats.ttest_ind(smokers, non_smokers, equal_var=False)
+print(f"t-statistic: {t_stat:.4f}")
+print(f"p-value: {p_val:.6f}")
+print(f"Smokers mean: {smokers.mean():.3f}")
+print(f"Non-smokers mean: {non_smokers.mean():.3f}")
+CODE 13
+To: python
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt["mother.smokes"] = birthwt["mother.smokes"].map({0: "No", 1: "Yes"})
+model = smf.ols("birthwt.grams ~ mother.smokes", data=birthwt).fit()
+print(model.summary())
+CODE 14
+To: python
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt["mother.smokes"] = birthwt["mother.smokes"].map({0: "No", 1: "Yes"})
+model = smf.ols("birthwt.grams ~ mother.smokes", data=birthwt).fit()
+print(model.summary())
+CODE 15
+To: python
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+model_age = smf.ols("birthwt.grams ~ mother.age", data=birthwt).fit()
+print(model_age.summary())
+CODE 16
+To: python
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+model_age = smf.ols("birthwt.grams ~ mother.age", data=birthwt).fit()
+print(model_age.summary())
+CODE 17
+To: python
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt_noout = birthwt[birthwt["mother.age"] <= 40]
+model_age_trimmed = smf.ols("birthwt.grams ~ mother.age", data=birthwt_noout).fit()
+print(model_age_trimmed.summary())
+CODE 18
+To: python
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+model_3 = smf.ols("birthwt.grams ~ mother.age", data=birthwt_noout).fit()
+print(model_3.summary())
+CODE 19
+To: python
+birthwt_noout["mother.smokes"] = birthwt_noout["mother.smokes"].map({0: "No", 1: "Yes"})
+model_3a = smf.ols("birthwt.grams ~ mother.smokes + mother.age", data=birthwt_noout).fit()
+print(model_3a.summary())
+
+CODE 20
+To:  python
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt_noout = birthwt[birthwt["mother.age"] <= 40]
+birthwt_noout["mother.smokes"] = birthwt_noout["mother.smokes"].map({0: "No", 1: "Yes"})
+birthwt_noout["race"] = birthwt_noout["race"].map({1: "white", 2: "black", 3: "other"})
+print(model_3b.summary())
+
+CODE 21
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt_noout = birthwt[birthwt["mother.age"] <= 40]
+birthwt_noout["mother.smokes"] = birthwt_noout["mother.smokes"].map({0: "No", 1: "Yes"})
+birthwt_noout["hypertension"] = birthwt_noout["hypertension"].map({0: "No", 1: "Yes"})
+birthwt_noout["uterine.irr"] = birthwt_noout["uterine.irr"].map({0: "No", 1: "Yes"})
+birthwt_noout["race"] = birthwt_noout["race"].map({1: "white", 2: "black", 3: "other"})
+predictors = birthwt_noout.columns.drop("birthwt.grams")
+formula = "birthwt.grams ~ " + " + ".join(predictors)
+model_4 = smf.ols(formula, data=birthwt_noout).fit()
+print(model_4.summary())
+CODE 22
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt_noout = birthwt[birthwt["mother.age"] <= 40]
+birthwt_noout["mother.smokes"] = birthwt_noout["mother.smokes"].map({0: "No", 1: "Yes"})
+birthwt_noout["hypertension"] = birthwt_noout["hypertension"].map({0: "No", 1: "Yes"})
+birthwt_noout["uterine.irr"] = birthwt_noout["uterine.irr"].map({0: "No", 1: "Yes"})
+birthwt_noout["race"] = birthwt_noout["race"].map({1: "white", 2: "black", 3: "other"})
+predictors = birthwt_noout.columns.drop(["birthwt.grams", "birthwt.below.2500"])
+formula = "birthwt.grams ~ " + " + ".join(predictors)
+model_4a = smf.ols(formula, data=birthwt_noout).fit()
+print(model_4a.summary())
+CODE 23
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt_noout = birthwt[birthwt["mother.age"] <= 40]
+birthwt_noout["mother.smokes"] = birthwt_noout["mother.smokes"].map({0: "No", 1: "Yes"})
+birthwt_noout["hypertension"] = birthwt_noout["hypertension"].map({0: "No", 1: "Yes"})
+birthwt_noout["uterine.irr"] = birthwt_noout["uterine.irr"].map({0: "No", 1: "Yes"})
+birthwt_noout["race"] = birthwt_noout["race"].map({1: "white", 2: "black", 3: "other"})
+formula = "birthwt.below.2500 ~ mother.age + mother.weight + race + mother.smokes + previous.prem.labor + hypertension + uterine.irr + physician.visits"
+glm_1 = smf.glm(formula=formula, data=birthwt_noout, family=sm.families.Binomial()).fit()
+print(glm_1.summary())
+CODE 24
+import pandas as pd
+import statsmodels.formula.api as smf
+birthwt = pd.read_csv("birthwt.csv")
+birthwt_noout = birthwt[birthwt["mother.age"] <= 40].copy()
+birthwt_noout["mother.smokes"] = birthwt_noout["mother.smokes"].map({0: "No", 1: "Yes"})
+birthwt_noout["hypertension"] = birthwt_noout["hypertension"].map({0: "No", 1: "Yes"})
+birthwt_noout["uterine.irr"] = birthwt_noout["uterine.irr"].map({0: "No", 1: "Yes"})
+birthwt_noout["race"] = birthwt_noout["race"].map({1: "white", 2: "black", 3: "other"})
+birthwt_in = birthwt_noout.iloc[::2].copy()   # Every odd-indexed row (like R's seq(1, ..., by=2))
+birthwt_out = birthwt_noout.iloc[1::2].copy() # The rest
+predictors = birthwt_in.columns.drop(["birthwt.grams", "birthwt.below.2500"])
+formula = "birthwt.grams ~ " + " + ".join(predictors)
+model_half = smf.ols(formula, data=birthwt_in).fit()
+print(model_half.summary())
+CODE 25
+import pandas as pd
+import statsmodels.formula.api as smfbirthwt = pd.read_csv("birthwt.csv")
+birthwt_noout = birthwt[birthwt["mother.age"] <= 40].copy()
+birthwt_noout["mother.smokes"] = birthwt_noout["mother.smokes"].map({0: "No", 1: "Yes"})
+birthwt_noout["hypertension"] = birthwt_noout["hypertension"].map({0: "No", 1: "Yes"})
+birthwt_noout["uterine.irr"] = birthwt_noout["uterine.irr"].map({0: "No", 1: "Yes"})
+birthwt_noout["race"] = birthwt_noout["race"].map({1: "white", 2: "black", 3: "other"})
+birthwt_in = birthwt_noout.iloc[::2]
+birthwt_out = birthwt_noout.iloc[1::2]
+predictors = birthwt_in.columns.drop(["birthwt.grams", "birthwt.below.2500"])
+formula = "birthwt.grams ~ " + " + ".join(predictors)
+model_half = smf.ols(formula=formula, data=birthwt_in).fit()
+print(model_half.summary())
+CODE 26
+import pandas as pd
+import statsmodels.formula.api as smf
+from scipy.stats import pearsonr
+birthwt_in = birthwt_noout.iloc[::2].copy()
+predictors = birthwt_in.columns.drop(["birthwt.grams", "birthwt.below.2500"])
+formula = "birthwt.grams ~ " + " + ".join(predictors)
+model_half = smf.ols(formula=formula, data=birthwt_in).fit()
+predicted = model_half.predict(birthwt_in)
+corr, _ = pearsonr(birthwt_in["birthwt.grams"], predicted)
+print(f"Correlation between actual and predicted: {corr:.6f}")
+CODE 27
+from scipy.stats import pearsonr
+predicted_out = model_half.predict(birthwt_out)
+corr_out, _ = pearsonr(birthwt_out["birthwt.grams"], predicted_out)
+print(f"Out-of-sample correlation: {corr_out:.7f}")
+
+
+
+
